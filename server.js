@@ -25,6 +25,12 @@ import "./src/utils/register-mutations.ts";
 
 const app = Fastify({ logger: false });
 
+app.addHook("preHandler", (request, reply, done) => {
+  reply.header("Cross-Origin-Opener-Policy", "same-origin");
+  reply.header("Cross-Origin-Embedder-Policy", "require-corp");
+  done();
+});
+
 let vite;
 
 if (!isProduction) {
