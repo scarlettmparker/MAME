@@ -1,11 +1,43 @@
-import React, { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Nostalgist } from "nostalgist";
 
 export default function MAMEPage() {
   const containerRef = useRef<HTMLCanvasElement>(null);
-  const nostalgistRef = useRef<any>(null);
+  const nostalgistRef = useRef<Nostalgist | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [status, setStatus] = useState("Ready");
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (typeof event.data !== "string") return;
+
+      if (event.data.startsWith("filestore:")) {
+        const fileUrl = event.data.replace("filestore:", "");
+        fetch(fileUrl)
+          .then((res) => res.blob())
+          .then((blob) => {
+            const file = new File([blob], "game.rom");
+            loadROM(file);
+          })
+          .catch((err) => {
+            console.error("Failed to load ROM:", err);
+            setStatus("Error loading ROM");
+          });
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+
+  // Cleanup
+  useEffect(() => {
+    return () => {
+      if (nostalgistRef.current) {
+        nostalgistRef.current.exit();
+      }
+    };
+  }, []);
 
   // Load and start a ROM
   const loadROM = async (file: File) => {
@@ -44,64 +76,17 @@ export default function MAMEPage() {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) loadROM(file);
-  };
-
-  // Save state
-  const saveState = async () => {
-    if (!nostalgistRef.current) return;
-    const { state } = await nostalgistRef.current.saveState();
-
-    console.log("Save state captured");
-    const blob = new Blob([state]);
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "genesis-save.state";
-    a.click();
-  };
-
-  // Load state
-  const loadState = async (stateFile: File) => {
-    if (!nostalgistRef.current) return;
-    const arrayBuffer = await stateFile.arrayBuffer();
-    await nostalgistRef.current.loadState(new Uint8Array(arrayBuffer));
-  };
-
-  // Cleanup
-  useEffect(() => {
-    return () => {
-      if (nostalgistRef.current) {
-        nostalgistRef.current.exit();
-      }
-    };
-  }, []);
-
   return (
     <div>
-      <input
-        type="file"
-        accept=".bin,.gen,.md,.zip"
-        onChange={handleFileChange}
-      />
-
-      <div style={{ margin: "10px 0" }}>
-        <button onClick={saveState} disabled={!isRunning}>
-          Save State
-        </button>
-        <label>
-          Load State:{" "}
-          <input
-            type="file"
-            accept=".state"
-            onChange={(e) =>
-              e.target.files?.[0] && loadState(e.target.files[0])
-            }
-          />
-        </label>
-      </div>
+      {!isRunning && (
+        <iframe
+          src="https://filestore.int.scarlettparker.co.uk"
+          style={{
+            width: "640px",
+            height: "480px",
+          }}
+        />
+      )}
       <canvas
         ref={containerRef}
         style={{
@@ -111,8 +96,6 @@ export default function MAMEPage() {
           margin: "20px 0",
         }}
       />
-
-      <p>Status: {status}</p>
     </div>
   );
 }
