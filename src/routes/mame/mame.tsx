@@ -1,33 +1,43 @@
 import { useRef, useEffect, useState } from "react";
 import { Nostalgist } from "nostalgist";
+import { EventBus, PostMessageBridge } from "@sun/events";
+import { FILESTORE_ORIGIN, FILESTORE_EVENTS } from "@sun/shared";
+import type { FilestoreEventPayloads } from "@sun/shared";
 
 export default function MAMEPage() {
   const containerRef = useRef<HTMLCanvasElement>(null);
   const nostalgistRef = useRef<Nostalgist | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const bridgeRef = useRef<PostMessageBridge<FilestoreEventPayloads> | null>(
+    null,
+  );
   const [isRunning, setIsRunning] = useState(false);
-  const [status, setStatus] = useState("Ready");
+  const [_status, setStatus] = useState("Ready");
 
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (typeof event.data !== "string") return;
+    const localBus = new EventBus<FilestoreEventPayloads>();
+    const remoteBus = new EventBus<FilestoreEventPayloads>();
 
-      if (event.data.startsWith("filestore:")) {
-        const fileUrl = event.data.replace("filestore:", "");
-        fetch(fileUrl)
-          .then((res) => res.blob())
-          .then((blob) => {
-            const file = new File([blob], "game.rom");
-            loadROM(file);
-          })
-          .catch((err) => {
-            console.error("Failed to load ROM:", err);
-            setStatus("Error loading ROM");
-          });
-      }
-    };
+    // Listen for file download events from the filestore iframe
+    remoteBus.on(FILESTORE_EVENTS.FILE_DOWNLOAD, ({ url }) => {
+      fetch(url)
+        .then((res) => res.blob())
+        .then((blob) => {
+          const file = new File([blob], "game.rom");
+          loadROM(file);
+        })
+        .catch((err) => {
+          console.error("Failed to load ROM:", err);
+          setStatus("Error loading ROM");
+        });
+    });
 
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
+    bridgeRef.current = new PostMessageBridge(localBus, remoteBus, {
+      target: iframeRef.current?.contentWindow ?? window,
+      origin: FILESTORE_ORIGIN,
+    });
+
+    return () => bridgeRef.current?.destroy();
   }, []);
 
   // Cleanup
@@ -80,7 +90,8 @@ export default function MAMEPage() {
     <div>
       {!isRunning && (
         <iframe
-          src="https://filestore.int.scarlettparker.co.uk"
+          ref={iframeRef}
+          src={FILESTORE_ORIGIN}
           style={{
             width: "640px",
             height: "480px",
