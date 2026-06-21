@@ -15,11 +15,18 @@ export default function MAMEPage() {
   const [_status, setStatus] = useState("Ready");
 
   useEffect(() => {
+    console.log(
+      "[mame] location.origin:",
+      window.location.origin,
+      "| embedding filestore at:",
+      FILESTORE_ORIGIN,
+    );
     const localBus = new EventBus<FilestoreEventPayloads>();
     const remoteBus = new EventBus<FilestoreEventPayloads>();
 
     // Listen for file download events from the filestore iframe
     remoteBus.on(FILESTORE_EVENTS.FILE_DOWNLOAD, ({ url }) => {
+      console.log("[mame] received FILE_DOWNLOAD from filestore:", url);
       fetch(url)
         .then((res) => res.blob())
         .then((blob) => {
@@ -90,6 +97,7 @@ export default function MAMEPage() {
     <div>
       {!isRunning && (
         <iframe
+          referrerPolicy="no-referrer-when-downgrade"
           ref={iframeRef}
           src={FILESTORE_ORIGIN}
           style={{
