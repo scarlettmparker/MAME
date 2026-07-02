@@ -6,7 +6,7 @@ import { Router, routes } from "./router";
 import Layout from "./components/layout";
 import NotFound from "./routes/not-found";
 import { matchRoutes } from "react-router-dom";
-import { inlineCss, generateCssTag } from "./utils/css-inlining";
+import { inlineCss, generateCssTag } from "@sun/utils";
 import "./utils/register-loaders";
 import { suspenseCache, invalidateCache, type MutationResult } from "@sun/ssr";
 import fs from "fs";

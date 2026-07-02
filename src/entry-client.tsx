@@ -7,7 +7,7 @@ import { Suspense, useEffect } from "react";
 
 import Layout from "./components/layout";
 import { hydratePageData } from "@sun/ssr";
-import { PostHogProvider } from "./utils/hooks/posthog";
+import { PostHogProvider } from "@sun/utils";
 
 // Define the postlude hydration function on window for SSR
 window.hydratePageDataFromPostlude = hydratePageData;
