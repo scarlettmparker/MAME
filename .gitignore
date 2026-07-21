@@ -6,6 +6,9 @@ dist/
 generated/
 coverage/
 
+.opencode/
+opencode.json
+
 # Java stuff
 .gradle/
 build/
