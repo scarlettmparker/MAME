@@ -1,92 +1,55 @@
 import React, { Suspense } from "react";
-import { createI18nInstance } from "./utils/i18n";
-import { renderToPipeableStream } from "react-dom/server";
 import { StaticRouter } from "react-router-dom/server";
 import { Router, routes } from "./router";
 import Layout from "./components/layout";
 import NotFound from "./routes/not-found";
 import { matchRoutes } from "react-router-dom";
-import { inlineCss, generateCssTag } from "@sun/utils";
-import "./utils/register-loaders";
-import { suspenseCache, invalidateCache, type MutationResult } from "@sun/ssr";
-import fs from "fs";
-import path from "path";
+import { createRenderer, autoDiscoverRegistrations } from "@sun/ssr/server";
+import { createI18nInstance } from "./utils/i18n";
+import { configureApi } from "@sun/api";
+import { AUTH_COOKIE } from "./utils/auth";
+import { clientId, clientSecret } from "../config.js";
+import "./utils/configure-framework";
+import "./utils/global-data";
 
-type i18n = {
-  translations: Record<string, string>;
-  locale: string;
-  pageName: string;
-};
+configureApi({ authCookie: AUTH_COOKIE, clientId, clientSecret });
 
-type RenderProps = {
+// Colocated mutation handlers self-register at boot.
+autoDiscoverRegistrations(
+  import.meta.glob("./server/**/*-registrations.ts", { eager: true }),
+);
+
+export async function render(options: {
   url: string;
-  translations: i18n["translations"];
   locale: string;
   pageName: string;
   clientJs: string;
   clientCss: string[];
   isProduction: boolean;
-  mutationPayload: MutationResult;
+  mutationPayload?: unknown;
   invalidateCacheCookie?: string;
-};
-
-export async function render({
-  url,
-  locale,
-  pageName,
-  clientJs,
-  clientCss,
-  isProduction,
-  mutationPayload: _mutationPayload,
-  invalidateCacheCookie,
-}: RenderProps) {
-  const posthogKey = process.env.POSTHOG_API_KEY ?? "";
-  const posthogHost = process.env.POSTHOG_HOST ?? "";
-
-  if (!clientJs) {
-    throw new Error("Missing required clientJs path");
-  }
-
-  let shouldDeleteCookie = false;
-  if (invalidateCacheCookie) {
-    shouldDeleteCookie = invalidateCache(invalidateCacheCookie);
-  }
-
-  for (const [key, record] of suspenseCache.entries()) {
-    if (record.status === "rejected") {
-      suspenseCache.delete(key);
-    }
-  }
-
-  const i18n = createI18nInstance();
-  await i18n.init({
-    lng: locale,
-    fallbackLng: "en",
-    resources: {},
-    interpolation: { escapeValue: false },
+  frontendMode?: string;
+}) {
+  const renderer = createRenderer({
+    title: "Emulator | Scarlet Sun",
+    posthog: true,
+    emitFrontendMode: true,
+    initI18n(locale, translations) {
+      const i18n = createI18nInstance();
+      return i18n.init({
+        lng: locale,
+        fallbackLng: "en",
+        resources: { [locale]: translations } as never,
+        interpolation: { escapeValue: false },
+      });
+    },
   });
 
-  let translations: Record<string, unknown> = {};
-  try {
-    const filePath = path.resolve(
-      process.cwd(),
-      `messages/${pageName}/${locale}.json`,
-    );
-    if (fs.existsSync(filePath)) {
-      const fileContent = fs.readFileSync(filePath, "utf-8");
-      translations = JSON.parse(fileContent);
-      i18n.addResourceBundle(locale, pageName, translations, true, true);
-    }
-  } catch {
-    // fallback to empty
-  }
-
-  const matches = matchRoutes(routes, url);
+  const matches = matchRoutes(routes, options.url);
   const didMatch = Boolean(matches);
-
   const App = (
     <React.StrictMode>
-      <StaticRouter location={url}>
+      <StaticRouter location={options.url}>
         <Layout>
           <Suspense fallback={null}>
             <Router />
@@ -96,78 +59,17 @@ export async function render({
     </React.StrictMode>
   );
 
-  const cssContent = await inlineCss(isProduction, clientCss);
-
-  return new Promise((resolve) => {
-    let resolved = false;
-    let postludeData = "";
-
-    const stream = renderToPipeableStream(didMatch ? App : <NotFound />, {
-      bootstrapModules: [clientJs],
-      onShellReady() {
-        const cssTag = generateCssTag(isProduction, cssContent, clientCss);
-        const headers: Record<string, string> = { "Content-Type": "text/html" };
-        if (shouldDeleteCookie) {
-          headers["Set-Cookie"] =
-            "invalidate_cache=; Path=/; Max-Age=0; SameSite=Lax;";
-        }
-        const prelude = `<!DOCTYPE html>
-          <html lang="en">
-            <head>
-              <meta charset="UTF-8" />
-              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-              ${cssTag}
-              <title>My App</title>
-            </head>
-            <script type="module">
-              import RefreshRuntime from '${process.env.VITE_SERVER_BASE}/@react-refresh'
-              RefreshRuntime.injectIntoGlobalHook(window)
-              window.$RefreshReg$ = () => {}
-              window.$RefreshSig$ = () => (type) => type
-              window.__vite_plugin_react_preamble_installed__ = true
-            </script>
-            <script>
-              window.__translations__ = ${JSON.stringify(translations)};
-              window.__posthog_key__ = '${posthogKey}';
-              window.__posthog_host__ = '${posthogHost}';
-              window.__locale__ = '${locale}';
-              window.__serverCacheData__ = {};
-            </script>
-            <body>
-              <div id="app">`;
-        if (!resolved) {
-          resolved = true;
-          resolve({
-            statusCode: didMatch ? 200 : 404,
-            headers,
-            prelude,
-            postlude: () => postludeData,
-            stream,
-          });
-        }
-      },
-      onAllReady() {
-        const serverCacheData: Record<string, unknown> = {};
-
-        for (const [key, record] of suspenseCache.entries()) {
-          if (record.status === "resolved") {
-            serverCacheData[key] = record.result;
-          }
-        }
-
-        postludeData = `</div>
-          <script>
-          if (window.__serverCacheData__ !== undefined) {
-            Object.assign(window.__serverCacheData__, ${JSON.stringify(serverCacheData)});
-            if (window.hydratePageDataFromPostlude) {
-              window.hydratePageDataFromPostlude(window.__serverCacheData__);
-            }
-          }
-          </script>
-          <script type="module" src="${clientJs}"></script>
-        </body>
-      </html>`;
-      },
-    });
+  return renderer.render({
+    app: didMatch ? App : <NotFound />,
+    didMatch,
+    url: options.url,
+    locale: options.locale,
+    pageName: options.pageName,
+    clientJs: options.clientJs,
+    clientCss: options.clientCss,
+    isProduction: options.isProduction,
+    mutationPayload: options.mutationPayload as never,
+    invalidateCacheCookie: options.invalidateCacheCookie,
+    frontendMode: options.frontendMode,
   });
 }
