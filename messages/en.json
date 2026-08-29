@@ -180,5 +180,13 @@
     "items_zero": "No buckets",
     "items_one": "{{count}} bucket",
     "items_other": "{{count}} buckets"
+  },
+  "mame": {
+    "select_rom": "Select ROM",
+    "change_rom": "Change ROM",
+    "picker": {
+      "title": "Select ROM",
+      "no_roms": "No ROMs found"
+    }
   }
 }
