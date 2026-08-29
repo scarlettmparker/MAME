@@ -1,0 +1,16 @@
+.nav {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sm);
+  padding: var(--md) var(--xl);
+}
+
+.link {
+  text-decoration: none;
+}
+
+.button {
+  padding: var(--sm) var(--lg);
+}
