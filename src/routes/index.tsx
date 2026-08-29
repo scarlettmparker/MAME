@@ -1,5 +1,10 @@
+import MAMEPage from "./mame/mame";
+
+/**
+ * Home page rendering the emulator.
+ */
 const Index = () => {
-  return <></>;
+  return <MAMEPage />;
 };
 
 export default Index;

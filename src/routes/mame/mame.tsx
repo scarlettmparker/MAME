@@ -1,46 +1,34 @@
 import { useRef, useEffect, useState } from "react";
 import { Nostalgist } from "nostalgist";
-import { EventBus, PostMessageBridge } from "@sun/events";
-import { FILESTORE_ORIGIN, FILESTORE_EVENTS } from "@sun/shared";
-import type { FilestoreEventPayloads } from "@sun/shared";
+import { Button } from "@sun/components";
+import { executeMutation } from "@sun/ssr";
+import { useTranslation } from "react-i18next";
+import RomPickerDialog from "~/components/emulator/rom-picker-dialog";
+import styles from "./mame.module.css";
 
-export default function MAMEPage() {
+/**
+ * Emulator page with canvas and ROM picker.
+ */
+const MAMEPage = () => {
   const containerRef = useRef<HTMLCanvasElement>(null);
   const nostalgistRef = useRef<Nostalgist | null>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const bridgeRef = useRef<PostMessageBridge<FilestoreEventPayloads> | null>(
-    null,
-  );
   const [isRunning, setIsRunning] = useState(false);
-  const [_status, setStatus] = useState("Ready");
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const { t } = useTranslation("mame");
 
   useEffect(() => {
-    const localBus = new EventBus<FilestoreEventPayloads>();
-    const remoteBus = new EventBus<FilestoreEventPayloads>();
-
-    // Listen for file download events from the filestore iframe
-    remoteBus.on(FILESTORE_EVENTS.FILE_DOWNLOAD, ({ url }) => {
-      fetch(url)
-        .then((res) => res.blob())
-        .then((blob) => {
-          const file = new File([blob], "game.rom");
-          loadROM(file);
-        })
-        .catch((err) => {
-          console.error("Failed to load ROM:", err);
-          setStatus("Error loading ROM");
-        });
-    });
-
-    bridgeRef.current = new PostMessageBridge(localBus, remoteBus, {
-      target: iframeRef.current?.contentWindow ?? window,
-      origin: FILESTORE_ORIGIN,
-    });
-
-    return () => bridgeRef.current?.destroy();
+    fetch("/cores/genesis_plus_gx.wasm", { cache: "force-cache" }).catch(
+      () => {},
+    );
+    fetch("/cores/genesis_plus_gx.js", { cache: "force-cache" }).catch(
+      () => {},
+    );
   }, []);
 
-  // Cleanup
+  useEffect(() => {
+    if (isRunning) containerRef.current?.focus();
+  }, [isRunning]);
+
   useEffect(() => {
     return () => {
       if (nostalgistRef.current) {
@@ -49,61 +37,73 @@ export default function MAMEPage() {
     };
   }, []);
 
-  // Load and start a ROM
   const loadROM = async (file: File) => {
     if (!containerRef.current) return;
 
-    setStatus("Loading...");
-
     try {
+      if (nostalgistRef.current) {
+        nostalgistRef.current.exit();
+      }
       const nostalgist = await Nostalgist.launch({
         core: "genesis_plus_gx",
         rom: file,
         element: containerRef.current,
-
+        respondToGlobalEvents: false,
         retroarchConfig: {
-          rewind_enable: true,
-          savestate_auto_save: true,
+          rewind_enable: false,
+          savestate_auto_save: false,
           savestate_auto_load: false,
+          savestate_thumbnail_enable: false,
+          video_vsync: false,
+          video_threaded: false,
+          video_smooth: false,
+          video_refresh_rate: 59.92,
+          video_black_frame_insertion: false,
+          audio_sync: true,
+          audio_latency: 64,
+          input_poll_type_behavior: 0,
         },
-
-        // Called after launch but before emulation starts
         async beforeLaunch(nostalgistInstance) {
           nostalgistRef.current = nostalgistInstance;
         },
       });
-
       nostalgistRef.current = nostalgist;
       setIsRunning(true);
-      setStatus("Running");
-    } catch (err) {
-      console.error(err);
-      setStatus("Error");
+    } catch {
+      setIsRunning(false);
     }
   };
 
+  const handleSelect = async (key: string) => {
+    setPickerOpen(false);
+    const res = await executeMutation("emulator/get-presigned-download-url", {
+      key,
+    });
+    if (res.__typename !== "QuerySuccess" || !res.id) return;
+    const romRes = await fetch(res.id);
+    const blob = await romRes.blob();
+    const file = new File([blob], key.split("/").pop() ?? "game.rom");
+    await loadROM(file);
+  };
+
   return (
-    <div>
-      {!isRunning && (
-        <iframe
-          referrerPolicy="no-referrer-when-downgrade"
-          ref={iframeRef}
-          src={FILESTORE_ORIGIN}
-          style={{
-            width: "640px",
-            height: "480px",
-          }}
-        />
-      )}
+    <div className={styles.container}>
       <canvas
         ref={containerRef}
-        style={{
-          width: "640px",
-          height: "480px",
-          background: "#000",
-          margin: "20px 0",
-        }}
+        className={styles.canvas}
+        tabIndex={0}
+        onClick={() => containerRef.current?.focus()}
+      />
+      <Button onClick={() => setPickerOpen(true)}>
+        {isRunning ? t("change-rom") : t("select-rom")}
+      </Button>
+      <RomPickerDialog
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelect={handleSelect}
       />
     </div>
   );
-}
+};
+
+export default MAMEPage;
