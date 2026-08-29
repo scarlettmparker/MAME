@@ -49,6 +49,17 @@ const MAMEPage = () => {
         rom: file,
         element: containerRef.current,
         respondToGlobalEvents: false,
+        shader: "mix_frames_smart",
+        resolveShader: () => [
+          {
+            fileName: "mix_frames_smart.glslp",
+            fileContent: "/shaders/mix_frames_smart.glslp",
+          },
+          {
+            fileName: "mix_frames_smart.glsl",
+            fileContent: "/shaders/shaders/mix_frames_smart.glsl",
+          },
+        ],
         retroarchConfig: {
           rewind_enable: false,
           savestate_auto_save: false,
@@ -59,6 +70,8 @@ const MAMEPage = () => {
           video_smooth: false,
           video_refresh_rate: 59.92,
           video_black_frame_insertion: false,
+          video_shader_enable: true,
+          video_shader_delay: 0,
           audio_sync: true,
           audio_latency: 64,
           input_poll_type_behavior: 0,
