@@ -1,5 +1,5 @@
 {
-  "name": "my-vite-app",
+  "name": "emulator",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
@@ -9,7 +9,8 @@
     "build:server": "vite build --ssr src/entry-server.tsx --outDir dist/server",
     "graphql:generate": "graphql-codegen --config codegen.ts",
     "lint": "npx eslint",
-    "preview": "cross-env NODE_ENV=production tsx --loader ./css-loader.mjs server.js"
+    "pretty": "prettier --write \"./**/*.{js,jsx,mjs,cjs,ts,tsx,json}\"",
+    "preview": "cross-env NODE_ENV=production tsx server.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.37.0",
@@ -22,6 +23,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^25.8.0",
     "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react-swc": "^3.11.0",
     "baseline-browser-mapping": "^2.9.11",
     "eslint": "^9.37.0",
     "eslint-plugin-react": "^7.37.5",
@@ -30,7 +32,7 @@
     "jest-environment-jsdom": "^30.2.0",
     "jiti": "^2.6.1",
     "nodemon": "^3.1.14",
-    "prettier": "^3.5.3",
+    "prettier": "^3.9.3",
     "rollup-plugin-visualizer": "^6.0.5",
     "ts-jest": "^29.4.5",
     "ts-node": "^10.9.2",
@@ -41,14 +43,18 @@
   },
   "dependencies": {
     "@fastify/compress": "^8.3.1",
+    "@fastify/formbody": "^8.0.2",
     "@fastify/http-proxy": "^11.4.4",
     "@fastify/middie": "^9.3.2",
     "@fastify/static": "^9.1.3",
+    "@heroicons/react": "^2.2.0",
     "@posthog/react": "^1.9.0",
+    "@sun/api": "^0.2.5",
+    "@sun/components": "^0.11.10",
     "@sun/events": "^0.1.0",
-    "@sun/shared": "^0.2.10",
-    "@sun/ssr": "^0.2.0",
-    "@sun/utils": "^0.1.1",
+    "@sun/shared": "^0.2.11",
+    "@sun/ssr": "^0.5.18",
+    "@sun/utils": "^0.1.6",
     "@testing-library/user-event": "^14.6.1",
     "@vitejs/plugin-react-swc": "^3.7.0",
     "brotli": "^1.3.3",
@@ -61,6 +67,7 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-i18next": "^15.4.1",
-    "react-router-dom": "^6.22.0"
+    "react-router-dom": "^6.22.0",
+    "sirv": "^3.0.1"
   }
 }
