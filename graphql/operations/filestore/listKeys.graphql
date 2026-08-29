@@ -1,0 +1,12 @@
+query ListKeys($bucket: String!, $prefix: String) {
+  filestoreQueries {
+    listKeys(bucket: $bucket, prefix: $prefix) {
+      key
+      isDirectory
+      size
+      lastModified
+      name
+      description
+    }
+  }
+}
