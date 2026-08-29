@@ -1,0 +1,206 @@
+scalar Long
+
+# Lifecycle state of a torrent download job.
+enum TorrentJobStatus {
+  QUEUED
+  METADATA
+  DOWNLOADING
+  PAUSED
+  UPLOADING
+  TRANSCODING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+# Represents a storage bucket.
+type Bucket {
+  id: String!
+  created: String
+  globalAliases: [String!]
+  localAliases: [String!]
+}
+
+# Represents a file object in a bucket.
+type File {
+  key: String!
+  size: Int
+  lastModified: String
+}
+
+# Queries for filestore operations.
+type TorrentSearchResult {
+  name: String!
+  seeders: Int!
+  leechers: Int!
+  size: String!
+  sizeBytes: Long!
+  publishDate: String
+  magnet: String!
+}
+
+type FilestoreQueries {
+  health: String
+  listBuckets: [Bucket!]
+  # List keys under a prefix, returning objects and directory entries.
+  listKeys(bucket: String!, prefix: String): [KeyEntry!]
+  # Locate a single key's metadata by bucket and key path.
+  locate(bucket: String!, keyPath: String!): KeyDetail
+  # Searches Jackett for torrents matching the query.
+  searchTorrents(query: String!): [TorrentSearchResult!]!
+}
+
+# Directory-like entry for a bucket key.
+type KeyEntry {
+  key: String!
+  isDirectory: Boolean!
+  size: Int
+  lastModified: String
+  name: String
+  description: String
+  # Present only when this key is an in-progress torrent download.
+  torrent: TorrentDownload
+}
+
+# The live download state attached to a key while a torrent is in progress.
+type TorrentDownload {
+  jobId: String!
+  status: TorrentJobStatus!
+  progress: Float!
+  magnetDetailId: String
+  downloadRateBps: Int
+  etaSeconds: Int
+  peersConnected: Int
+  errorMessage: String
+  downloadedBytes: Long
+  totalBytes: Long
+}
+
+# Detailed metadata for a specific key.
+type KeyDetail {
+  id: String!
+  bucket: String!
+  keyPath: String!
+  name: String
+  description: String
+  status: String!
+  createdAt: String
+  lastUpdatedAt: String
+  archivedAt: String
+}
+
+# Response payload for the renameKey mutation
+type RenameKeyResult {
+  success: Boolean!
+  hasConflicts: Boolean!
+  conflicts: [String!]!
+}
+
+input PutKeyInput {
+  bucket: String!
+  key: String
+}
+
+input BucketKeyInput {
+  bucket: String!
+  key: String!
+}
+
+input RenameKeyInput {
+  bucket: String!
+  sourceKey: String!
+  targetKey: String!
+  merge: Boolean!
+}
+
+input AddTorrentInput {
+  bucket: String!
+  path: String
+  magnet: String
+  torrentFileBase64: String
+}
+
+input PresignInput {
+  bucket: String!
+  key: String!
+  contentType: String
+}
+
+# Mutations for filestore operations including multipart upload support.
+type FilestoreMutations {
+  # Create a directory key (folder).
+  putKey(input: PutKeyInput!): Boolean
+  # Delete a file.
+  deleteFile(input: BucketKeyInput!): Boolean
+  # Delete a key and propagate: recursively delete the key, all sub-keys and files under it.
+  deleteKey(input: BucketKeyInput!): Boolean
+  # Renames a single file or a directory prefix. Validates conflicts when merge is false.
+  renameKey(input: RenameKeyInput!): RenameKeyResult!
+  # Returns a presigned PUT URL for direct browser-to-storage upload.
+  getPresignedUploadUrl(input: PresignInput!): String
+  # Returns a presigned GET URL for direct browser download.
+  getPresignedDownloadUrl(input: BucketKeyInput!): String
+  # Adds a torrent from a magnet link or base64-encoded .torrent file.
+  addTorrent(input: AddTorrentInput!): TorrentJob
+  # Pauses a torrent download.
+  pauseTorrent(jobId: String!): TorrentJob
+  # Resumes a paused torrent download.
+  resumeTorrent(jobId: String!): TorrentJob
+  # Cancels a torrent download and clears its scratch files.
+  cancelTorrent(jobId: String!): TorrentJob
+}
+
+# A single torrent download job tracked in the database.
+type TorrentJob {
+  id: String!
+  bucket: String!
+  targetKeyPath: String!
+  sourceType: String!
+  status: String!
+  infoHash: String!
+  totalBytes: Long!
+  downloadedBytes: Long!
+  uploadedBytes: Long!
+  progress: Float!
+  downloadRateBps: Int
+  uploadRateBps: Int
+  peersConnected: Int
+  seedsConnected: Int
+  etaSeconds: Long
+  errorMessage: String
+  createdAt: String
+  completedAt: String
+  magnetDetail: MagnetDetail
+}
+
+# Torrent metadata captured when a job is added.
+type MagnetDetail {
+  id: String!
+  infoHash: String!
+  infoHashVersion: String
+  displayName: String!
+  sourceUri: String
+  totalSize: Long!
+  comment: String
+  createdBy: String
+  pieceLength: Long
+  pieceCount: Int
+  isPrivate: Boolean!
+  trackers: [String!]
+  files: [TorrentFile!]
+}
+
+# A single file declared within a torrent.
+type TorrentFile {
+  indexInTorrent: Int!
+  path: String!
+  size: Long!
+}
+
+extend type Query {
+  filestoreQueries: FilestoreQueries!
+}
+
+extend type Mutation {
+  filestoreMutations: FilestoreMutations!
+}
