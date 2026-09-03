@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--sm);
-  padding: var(--md) var(--xl);
+  padding: var(--lg);
 }
 
 .link {
