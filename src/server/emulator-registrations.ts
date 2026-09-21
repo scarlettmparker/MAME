@@ -1,8 +1,8 @@
 import {
   defineLoader,
   defineMutation,
+  MutationError,
   type MutationContext,
-  type MutationResult,
 } from "@sun/ssr";
 import { executeDocument } from "@sun/api";
 import { AUTH_COOKIE, getCookieValue } from "~/utils/auth";
@@ -10,6 +10,7 @@ import {
   GetPresignedDownloadUrlDocument,
   ListKeysDocument,
   type GetPresignedDownloadUrlMutation,
+  type GetPresignedDownloadUrlResponse,
   type ListKeysQuery,
 } from "~/generated/graphql";
 
@@ -41,26 +42,19 @@ defineMutation({
   async handler(
     body: { key: string },
     context: MutationContext,
-  ): Promise<MutationResult> {
+  ): Promise<GetPresignedDownloadUrlResponse> {
     if (!body.key || typeof body.key !== "string") {
-      return {
-        __typename: "StandardError",
-        message: "key required",
-      };
+      throw new MutationError("key required");
     }
     const result = await executeDocument<GetPresignedDownloadUrlMutation>(
       GetPresignedDownloadUrlDocument,
       { input: { bucket: EMULATOR_BUCKET, key: body.key } },
       getCookieValue(context.cookie, AUTH_COOKIE),
     );
-    const url = result.data?.filestoreMutations?.getPresignedDownloadUrl as
-      | string
-      | undefined;
-    return url
-      ? { __typename: "QuerySuccess", message: "URL generated", id: url }
-      : {
-          __typename: "StandardError",
-          message: "Failed to generate presigned download URL",
-        };
+    const response = result.data?.filestoreMutations?.getPresignedDownloadUrl;
+    if (response == null) {
+      throw new MutationError("Failed to generate presigned download URL");
+    }
+    return response;
   },
 });

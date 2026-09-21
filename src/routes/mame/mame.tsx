@@ -3,6 +3,7 @@ import { Nostalgist } from "nostalgist";
 import { Button } from "@sun/components";
 import { executeMutation } from "@sun/ssr";
 import { useTranslation } from "react-i18next";
+import type { GetPresignedDownloadUrlResponse } from "~/generated/graphql";
 import RomPickerDialog from "~/components/emulator/rom-picker-dialog";
 import styles from "./mame.module.css";
 
@@ -89,11 +90,12 @@ const MAMEPage = () => {
 
   const handleSelect = async (key: string) => {
     setPickerOpen(false);
-    const res = await executeMutation("emulator/get-presigned-download-url", {
-      key,
-    });
-    if (res.__typename !== "QuerySuccess" || !res.id) return;
-    const romRes = await fetch(res.id);
+    const res = await executeMutation<GetPresignedDownloadUrlResponse>(
+      "emulator/get-presigned-download-url",
+      { key },
+    );
+    if (!res.url) return;
+    const romRes = await fetch(res.url);
     const blob = await romRes.blob();
     const file = new File([blob], key.split("/").pop() ?? "game.rom");
     await loadROM(file);

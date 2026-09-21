@@ -53,7 +53,7 @@
     "@sun/components": "^0.11.10",
     "@sun/events": "^0.1.0",
     "@sun/shared": "^0.2.11",
-    "@sun/ssr": "^0.5.18",
+    "@sun/ssr": "^0.6.0",
     "@sun/utils": "^0.1.6",
     "@testing-library/user-event": "^14.6.1",
     "@vitejs/plugin-react-swc": "^3.7.0",

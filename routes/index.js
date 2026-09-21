@@ -94,25 +94,6 @@ export function setupRoutes(app, vite) {
    * @param {import("fastify").FastifyReply} reply - Fastify reply object.
    */
   app.setNotFoundHandler({ method: ["GET"] }, async (request, reply) => {
-    const mutationPayloadCookie = getCookieValue(
-      request.headers.cookie,
-      "mutation_payload",
-    );
-    const invalidateCacheCookie = getCookieValue(
-      request.headers.cookie,
-      "invalidate_cache",
-    );
-    let mutationPayload = null;
-    if (mutationPayloadCookie) {
-      try {
-        mutationPayload = JSON.parse(
-          Buffer.from(mutationPayloadCookie, "base64").toString("utf-8"),
-        );
-      } catch (_) {
-        // Do nothing
-      }
-    }
-
     const requestUrl = new URL(request.raw.url, "http://localhost");
     const pathname = requestUrl.pathname;
     if (/\.[^/]+$/.test(pathname)) {
@@ -177,8 +158,6 @@ export function setupRoutes(app, vite) {
           locale,
           pageName,
           frontendMode,
-          mutationPayload,
-          invalidateCacheCookie,
           manifestPath,
         },
         reply.raw,
