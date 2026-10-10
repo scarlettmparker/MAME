@@ -3,10 +3,6 @@
  * Sets up middleware, Vite integration (for development), and routes, then starts the server.
  */
 
-import { register } from "node:module";
-import { pathToFileURL } from "node:url";
-register("./css-loader.mjs", pathToFileURL("./"));
-
 import { createServer } from "@sun/ssr/server";
 import {
   port,
