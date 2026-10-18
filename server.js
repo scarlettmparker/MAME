@@ -14,7 +14,11 @@ import {
   clientSecret,
   clientId,
 } from "./config.js";
+import { configureApi } from "@sun/api";
 import { setupRoutes } from "./routes/index.js";
+import { AUTH_COOKIE } from "./src/utils/auth.ts";
+
+configureApi({ authCookie: AUTH_COOKIE, clientId, clientSecret });
 
 await createServer({
   config: {
