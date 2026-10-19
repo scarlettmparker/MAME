@@ -1,11 +1,6 @@
 import { Suspense } from "react";
-import {
-  Dialog,
-  DialogHeader,
-  DialogTitle,
-  DialogBody,
-} from "@sun/components";
-import { useTranslation } from "react-i18next";
+import { Dialog, DialogHeader, DialogTitle, DialogBody } from "@sun/components";
+import { useTranslation } from "@sun/i18n";
 import RomList from "../rom-list";
 import { RomListSkeleton } from "./skeletons";
 

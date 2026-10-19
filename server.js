@@ -39,10 +39,13 @@ await createServer({
   configure: async (app) => {
     const { default: formbody } = await import("@fastify/formbody");
     await app.register(formbody);
-    app.addHook("preHandler", (_request, reply, done) => {
+    app.addHook("preHandler", (_request, reply) => {
       reply.header("Cross-Origin-Opener-Policy", "same-origin");
       reply.header("Cross-Origin-Embedder-Policy", "require-corp");
-      done();
     });
+  },
+  analytics: {
+    app: "emulator",
+    authCookie: AUTH_COOKIE,
   },
 });

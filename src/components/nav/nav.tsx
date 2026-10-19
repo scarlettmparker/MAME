@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@sun/i18n";
 import { Button } from "@sun/components";
 import { RoleCheck } from "@sun/ssr/react";
-import { Cog6ToothIcon } from "@heroicons/react/24/outline";
+import { Cog6ToothOutline } from "preact-heroicons";
 import styles from "./nav.module.css";
 
 const PUBLIC_PATHS = ["/login"];
@@ -23,11 +23,7 @@ const Nav = () => {
     <nav className={styles.nav}>
       <Link to="/" className={styles.link}>
         <Button
-          variant={
-            pathname === "/" || pathname.startsWith("/bucket")
-              ? "default"
-              : "secondary"
-          }
+          variant={pathname === "/" || pathname.startsWith("/bucket") ? "default" : "secondary"}
           className={styles.button}
         >
           {t("buckets")}
@@ -36,12 +32,8 @@ const Nav = () => {
       <Suspense fallback={null}>
         <RoleCheck roles={["Admin"]}>
           <Link to="/admin" className={styles.link}>
-            <Button
-              variant="secondary"
-              className={styles.button}
-              title={t("admin")}
-            >
-              <Cog6ToothIcon width={20} height={20} />
+            <Button variant="secondary" className={styles.button} title={t("admin")}>
+              <Cog6ToothOutline width={20} height={20} />
             </Button>
           </Link>
         </RoleCheck>

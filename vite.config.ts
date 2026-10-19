@@ -1,5 +1,6 @@
 import { defineConfig } from "vitest/config";
-import react from "@vitejs/plugin-react-swc";
+import preact from "@preact/preset-vite";
+import { compression, forbidModules, stripJsxPragma } from "@sun/build";
 import { visualizer } from "rollup-plugin-visualizer";
 import path from "node:path";
 
@@ -10,7 +11,12 @@ export default defineConfig(() => {
       .filter(Boolean) ?? [];
 
   return {
-    plugins: [react()],
+    plugins: [
+      preact(),
+      stripJsxPragma("preact-heroicons"),
+      compression(),
+      forbidModules(["react", "react-dom"]),
+    ],
     resolve: {
       alias: {
         "~": path.resolve(import.meta.dirname, "./src"),
@@ -58,6 +64,8 @@ export default defineConfig(() => {
               return "vendor-posthog";
             }
             if (
+              id.includes("/preact/") ||
+              id.includes("\\preact\\") ||
               id.includes("/react-dom/") ||
               id.includes("\\react-dom\\") ||
               id.includes("/react-router-dom/") ||
@@ -73,8 +81,21 @@ export default defineConfig(() => {
       cssCodeSplit: true,
     },
     ssr: {
-      noExternal: ["react-router-dom"],
-      external: ["@sun/ssr"],
+      noExternal: [
+        "@sun/ssr",
+        "@sun/api",
+        "@sun/components",
+        "@sun/themes",
+        "@sun/utils",
+        "@sun/shared",
+        "@sun/events",
+        "@sun/security",
+        "react-router-dom",
+        "react-router",
+        "react-i18next",
+        "@heroicons/react",
+        "lucide-react",
+      ],
     },
   };
 });

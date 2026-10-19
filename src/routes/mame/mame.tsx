@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import { Nostalgist } from "nostalgist";
 import { Button } from "@sun/components";
 import { executeMutation } from "@sun/ssr";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@sun/i18n";
 import type { GetPresignedDownloadUrlResponse } from "~/generated/graphql";
 import RomPickerDialog from "~/components/emulator/rom-picker-dialog";
 import styles from "./mame.module.css";
@@ -18,12 +18,8 @@ const MAMEPage = () => {
   const { t } = useTranslation("mame");
 
   useEffect(() => {
-    fetch("/cores/genesis_plus_gx.wasm", { cache: "force-cache" }).catch(
-      () => {},
-    );
-    fetch("/cores/genesis_plus_gx.js", { cache: "force-cache" }).catch(
-      () => {},
-    );
+    fetch("/cores/genesis_plus_gx.wasm", { cache: "force-cache" }).catch(() => {});
+    fetch("/cores/genesis_plus_gx.js", { cache: "force-cache" }).catch(() => {});
   }, []);
 
   useEffect(() => {

@@ -8,12 +8,7 @@ import { Buffer } from "buffer";
 import { createHmac, timingSafeEqual } from "crypto";
 import { matchOriginToMode, FrontendMode } from "@sun/shared";
 import { getCookieValue } from "@sun/api";
-import {
-  AUTH_COOKIE,
-  loginViaGaia,
-  buildAuthCookie,
-  clearAuthCookie,
-} from "../src/utils/auth.ts";
+import { AUTH_COOKIE, loginViaGaia, buildAuthCookie, clearAuthCookie } from "../src/utils/auth.ts";
 
 /** Pages that do not require an authenticated session. */
 const PUBLIC_PAGES = new Set(["/login"]);
@@ -30,23 +25,16 @@ function verifyToken(token) {
   if (parts.length !== 3) return null;
 
   const data = parts[0] + "." + parts[1];
-  const expectedSig = createHmac("sha256", secret)
-    .update(data)
-    .digest("base64url");
+  const expectedSig = createHmac("sha256", secret).update(data).digest("base64url");
 
   const expectedBuf = Buffer.from(expectedSig);
   const actualBuf = Buffer.from(parts[2]);
-  if (
-    expectedBuf.length !== actualBuf.length ||
-    !timingSafeEqual(expectedBuf, actualBuf)
-  ) {
+  if (expectedBuf.length !== actualBuf.length || !timingSafeEqual(expectedBuf, actualBuf)) {
     return null;
   }
 
   try {
-    const payload = JSON.parse(
-      Buffer.from(parts[1], "base64url").toString(),
-    );
+    const payload = JSON.parse(Buffer.from(parts[1], "base64url").toString());
     if (payload.exp && payload.exp * 1000 < Date.now()) return null;
     return payload;
   } catch {
@@ -69,10 +57,7 @@ export function setupRoutes(app, vite) {
     const token = await loginViaGaia(username, password);
     if (!token) return reply.redirect("/login?error=1");
     reply.header("Set-Cookie", buildAuthCookie(token));
-    const redirectTo =
-      typeof request.query?.redirect === "string"
-        ? request.query.redirect
-        : "/";
+    const redirectTo = typeof request.query?.redirect === "string" ? request.query.redirect : "/";
     return reply.redirect(redirectTo);
   });
 
@@ -105,22 +90,16 @@ export function setupRoutes(app, vite) {
       const payload = verifyToken(token);
       if (!payload) {
         reply.header("Set-Cookie", clearAuthCookie());
-        return reply.redirect(
-          `/login?redirect=${encodeURIComponent(request.raw.url)}`,
-        );
+        return reply.redirect(`/login?redirect=${encodeURIComponent(request.raw.url)}`);
       }
     }
 
     const normalizedPath =
-      pathname.length > 1 && pathname.endsWith("/")
-        ? pathname.replace(/\/+$/, "")
-        : pathname;
+      pathname.length > 1 && pathname.endsWith("/") ? pathname.replace(/\/+$/, "") : pathname;
     const isPublic = PUBLIC_PAGES.has(normalizedPath);
 
     if (!token && !isPublic)
-      return reply.redirect(
-        `/login?redirect=${encodeURIComponent(request.raw.url)}`,
-      );
+      return reply.redirect(`/login?redirect=${encodeURIComponent(request.raw.url)}`);
     if (token && isPublic) return reply.redirect("/");
 
     let url = pathname.replace(base, "");
