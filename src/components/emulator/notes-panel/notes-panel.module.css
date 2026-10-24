@@ -1,0 +1,47 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md);
+}
+
+.title {
+  margin: 0;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md);
+}
+
+.actions {
+  display: flex;
+  gap: var(--sm);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sm);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--sm);
+  justify-content: flex-start;
+}
+
+.item_name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.empty {
+  margin: 0;
+}
+
+.link {
+  display: block;
+}

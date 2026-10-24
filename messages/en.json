@@ -187,6 +187,22 @@
     "picker": {
       "title": "Select ROM",
       "no_roms": "No ROMs found"
-    }
+    },
+    "save": {
+      "title": "Save states",
+      "save_new": "Save new",
+      "overwrite": "Overwrite",
+      "load": "Load",
+      "delete": "Delete",
+      "none": "No save states",
+      "no_rom": "Load a ROM to manage save states"
+    },
+    "notes": {
+      "title": "Notes",
+      "new": "New note",
+      "none": "No notes",
+      "no_rom": "Load a ROM to view notes"
+    },
+    "placeholder": "Select a ROM to start playing."
   }
 }

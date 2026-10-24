@@ -168,6 +168,28 @@ defineMutation({
 });
 
 /**
+ * Returns a presigned download URL for any bucket.
+ */
+defineMutation({
+  path: "filestore/get-presigned-download-url",
+  async handler(
+    body: { bucket: string; key: string },
+    context: MutationContext,
+  ): Promise<GetPresignedDownloadUrlResponse> {
+    const result = await executeDocument<GetPresignedDownloadUrlMutation>(
+      GetPresignedDownloadUrlDocument,
+      { input: { bucket: body.bucket, key: body.key } },
+      getCookieValue(context.cookie, AUTH_COOKIE),
+    );
+    const response = result.data?.filestoreMutations?.getPresignedDownloadUrl;
+    if (response == null) {
+      throw new MutationError("Failed to generate presigned download URL");
+    }
+    return response;
+  },
+});
+
+/**
  * Deletes a file from a bucket.
  */
 defineMutation({
