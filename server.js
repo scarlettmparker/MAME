@@ -20,6 +20,9 @@ import { AUTH_COOKIE } from "./src/utils/auth.ts";
 
 configureApi({ authCookie: AUTH_COOKIE, clientId, clientSecret });
 
+const additionalConnectSrc = ["https://cdn.jsdelivr.net"];
+console.log("MAME CSP connect-src extras:", additionalConnectSrc);
+
 await createServer({
   config: {
     port,
@@ -48,5 +51,5 @@ await createServer({
     app: "emulator",
     authCookie: AUTH_COOKIE,
   },
-  additionalConnectSrc: ["https://cdn.jsdelivr.net"],
+  additionalConnectSrc,
 });
