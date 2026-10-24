@@ -1,7 +1,15 @@
 .panel {
   display: flex;
   flex-direction: column;
-  gap: var(--md);
+  gap: var(--lg);
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sm);
 }
 
 .title {

@@ -24,15 +24,6 @@ const NotesPanelItems = (props: NotesPanelItemsProps) => {
 
   return (
     <div className={styles.body}>
-      <div className={styles.actions}>
-        <Link
-          to={`/notes/create?target=${encodeURIComponent(target)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Button variant="secondary">{t("notes.new")}</Button>
-        </Link>
-      </div>
       <div className={styles.list}>
         {!notes?.length ? (
           <p className={styles.empty}>{t("notes.none")}</p>

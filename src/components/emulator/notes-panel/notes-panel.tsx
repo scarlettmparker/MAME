@@ -1,4 +1,6 @@
 import { Suspense } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "@sun/components";
 import { useTranslation } from "@sun/i18n";
 import NotesPanelItems from "./notes-panel-items";
 import { NotesPanelSkeleton } from "./skeletons";
@@ -18,7 +20,18 @@ const NotesPanel = (props: NotesPanelProps) => {
 
   return (
     <div className={styles.panel}>
-      <h3 className={styles.title}>{t("notes.title")}</h3>
+      <div className={styles.header}>
+        <h3 className={styles.title}>{t("notes.title")}</h3>
+        {target && (
+          <Link
+            to={`/notes/create?target=${encodeURIComponent(target)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button variant="secondary">{t("notes.new")}</Button>
+          </Link>
+        )}
+      </div>
       {!target ? (
         <p className={styles.empty}>{t("notes.no_rom")}</p>
       ) : (

@@ -195,7 +195,11 @@
       "load": "Load",
       "delete": "Delete",
       "none": "No save states",
-      "no_rom": "Load a ROM to manage save states"
+      "no_rom": "Load a ROM to manage save states",
+      "save_current": "Save current",
+      "confirm_delete_title": "Delete save state?",
+      "confirm_delete_body": "Are you sure you want to delete this save state?",
+      "cancel": "Cancel"
     },
     "notes": {
       "title": "Notes",

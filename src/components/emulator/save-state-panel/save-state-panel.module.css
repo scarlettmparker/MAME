@@ -1,6 +1,21 @@
 .panel {
   display: flex;
   flex-direction: column;
+  gap: var(--lg);
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sm);
+}
+
+.header_actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   gap: var(--md);
 }
 
@@ -31,6 +46,13 @@
   align-items: center;
   gap: var(--sm);
   justify-content: flex-start;
+  flex: 1 1 auto;
+}
+
+.item_actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
 }
 
 .item_name {
