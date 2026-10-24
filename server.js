@@ -48,4 +48,5 @@ await createServer({
     app: "emulator",
     authCookie: AUTH_COOKIE,
   },
+  additionalConnectSrc: ["https://cdn.jsdelivr.net"],
 });
