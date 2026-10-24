@@ -54,7 +54,7 @@ const SaveStatePanel = (props: SaveStatePanelProps) => {
         <h3 className={styles.title}>{t("save.title")}</h3>
         {romKey && (
           <div className={styles.header_actions}>
-            <Button variant="secondary" onClick={handleSaveNew} disabled={!nostalgist}>
+            <Button variant="default" onClick={handleSaveNew} disabled={!nostalgist}>
               {t("save.save_new")}
             </Button>
             <Button

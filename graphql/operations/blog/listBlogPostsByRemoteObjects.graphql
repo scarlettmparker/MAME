@@ -3,6 +3,8 @@ query listBlogPostsByRemoteObjects($ids: [String!]!) {
     listByRemoteObjects(ids: $ids) {
       id
       title
+      content
+      createdAt
       type {
         id
         name

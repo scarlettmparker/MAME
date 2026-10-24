@@ -28,7 +28,7 @@ const NotesPanel = (props: NotesPanelProps) => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Button variant="secondary">{t("notes.new")}</Button>
+            <Button variant="default">{t("notes.new")}</Button>
           </Link>
         )}
       </div>

@@ -205,7 +205,24 @@
       "title": "Notes",
       "new": "New note",
       "none": "No notes",
-      "no_rom": "Load a ROM to view notes"
+      "no_rom": "Load a ROM to view notes",
+      "no_target": "No ROM target provided",
+      "form": {
+        "title": "Title",
+        "type": "Type",
+        "type_none": "None",
+        "content": "Content",
+        "create": "Create",
+        "creating": "Creating..."
+      },
+      "edit_title": "Edit note",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "save": "Save",
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirm_delete_title": "Delete note?",
+      "confirm_delete_body": "Are you sure you want to delete this note?"
     },
     "placeholder": "Select a ROM to start playing."
   }

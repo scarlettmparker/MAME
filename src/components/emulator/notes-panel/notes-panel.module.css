@@ -35,15 +35,14 @@
 
 .item {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   gap: var(--sm);
   justify-content: flex-start;
 }
 
 .item_name {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
 }
 
 .empty {
@@ -52,4 +51,42 @@
 
 .link {
   display: block;
+}
+
+.item_date {
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.item_content {
+  display: block;
+  white-space: normal;
+  width: 100%;
+}
+
+.title_link {
+  text-decoration: none;
+  font-weight: inherit;
+}
+
+.item_header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--md);
+  justify-content: space-between;
+  width: 100%;
+}
+
+.item_actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.title_group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--md);
 }
