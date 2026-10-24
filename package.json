@@ -29,6 +29,7 @@
     "@sun/components": "^0.12.14",
     "@sun/events": "^0.1.1",
     "@sun/i18n": "^0.1.1",
+    "@sun/security": "0.1.9",
     "@sun/shared": "^0.2.12",
     "@sun/ssr": "^0.10.0",
     "@sun/utils": "^0.2.0",
