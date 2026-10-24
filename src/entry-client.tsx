@@ -10,6 +10,17 @@ import { initClientBootstrap } from "@sun/ssr";
 import "./utils/configure-framework";
 import "@sun/components/style.css";
 
+if (typeof window !== "undefined" && window.trustedTypes) {
+  try {
+    window.trustedTypes.createPolicy("default", {
+      createHTML: (html: string) => html,
+      createScriptURL: (url: string) => url,
+    });
+  } catch {
+    // Policy already exists.
+  }
+}
+
 setI18n(i18n);
 
 initClientBootstrap({ i18n })
