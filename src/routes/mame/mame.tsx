@@ -16,11 +16,15 @@ const MAMEPage = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [currentRomKey, setCurrentRomKey] = useState<string | null>(null);
+  const [isLoadingRom, setIsLoadingRom] = useState(false);
   const { t } = useTranslation("mame");
 
   useEffect(() => {
-    fetch("/cores/genesis_plus_gx.wasm", { cache: "force-cache" }).catch(() => {});
-    fetch("/cores/genesis_plus_gx.js", { cache: "force-cache" }).catch(() => {});
+    const prefetch = () => {
+      fetch("/cores/genesis_plus_gx.wasm", { cache: "force-cache" }).catch(() => {});
+      fetch("/cores/genesis_plus_gx.js", { cache: "force-cache" }).catch(() => {});
+    };
+    setTimeout(prefetch, 0);
   }, []);
 
   useEffect(() => {
@@ -90,15 +94,20 @@ const MAMEPage = () => {
   const handleSelect = async (key: string) => {
     setPickerOpen(false);
     setCurrentRomKey(key);
-    const res = await executeMutation<GetPresignedDownloadUrlResponse>(
-      "emulator/get-presigned-download-url",
-      { key },
-    );
-    if (!res.url) return;
-    const romRes = await fetch(res.url);
-    const blob = await romRes.blob();
-    const file = new File([blob], key.split("/").pop() ?? "game.rom");
-    await loadROM(file);
+    setIsLoadingRom(true);
+    try {
+      const res = await executeMutation<GetPresignedDownloadUrlResponse>(
+        "emulator/get-presigned-download-url",
+        { key },
+      );
+      if (!res.url) return;
+      const romRes = await fetch(res.url);
+      const blob = await romRes.blob();
+      const file = new File([blob], key.split("/").pop() ?? "game.rom");
+      await loadROM(file);
+    } finally {
+      setIsLoadingRom(false);
+    }
   };
 
   return (
@@ -111,8 +120,12 @@ const MAMEPage = () => {
           style={{ backgroundColor: "#000" }}
           onClick={() => containerRef.current?.focus()}
         />
-        <Button className={styles.select_button} onClick={() => setPickerOpen(true)}>
-          {isRunning ? t("change-rom") : t("select-rom")}
+        <Button
+          className={styles.select_button}
+          onClick={() => setPickerOpen(true)}
+          disabled={isLoadingRom}
+        >
+          {isLoadingRom ? t("loading-rom") : isRunning ? t("change-rom") : t("select-rom")}
         </Button>
         <RomPickerDialog
           open={pickerOpen}
