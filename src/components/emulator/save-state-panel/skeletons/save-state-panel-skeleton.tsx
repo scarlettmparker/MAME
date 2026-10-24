@@ -1,14 +1,20 @@
-import { Skeleton } from "@sun/components";
+import { Card, CardBody, CardHeader, Skeleton } from "@sun/components";
+import styles from "./save-state-panel-skeleton.module.css";
 
 /**
- * Skeleton for the save-state list.
+ * Skeleton for the save-state panel.
  */
 const SaveStatePanelSkeleton = () => {
   return (
-    <div className="save_state_skeleton">
-      <Skeleton />
-      <Skeleton />
-    </div>
+    <Card>
+      <CardHeader>
+        <Skeleton className={styles.skeleton_title} />
+      </CardHeader>
+      <CardBody className={styles.body}>
+        <Skeleton className={styles.skeleton_row} />
+        <Skeleton className={styles.skeleton_row} />
+      </CardBody>
+    </Card>
   );
 };
 
