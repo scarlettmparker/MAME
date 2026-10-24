@@ -1,0 +1,74 @@
+type AddRemoteObjectResponse {
+  message: String!
+  post: BlogPost!
+}
+
+type BlogMutations {
+  addRemoteObject(postId: ID!, target: String!): AddRemoteObjectResponse!
+  createBlogPost(input: BlogPostInput, title: String!): CreateBlogPostResponse!
+  deleteBlogPost(id: ID!): DeleteBlogPostResponse!
+  removeRemoteObject(postId: ID!, target: String!): RemoveRemoteObjectResponse!
+  updateBlogPost(id: ID!, input: BlogPostInput!): UpdateBlogPostResponse!
+}
+
+type BlogPost {
+  content: String
+  createdAt: DateTime
+  id: String!
+  language: String
+  parentId: ID
+  remoteObject: [String!]
+  tags: [String!]
+  title: String!
+  type: BlogPostType
+  updatedAt: DateTime
+}
+
+input BlogPostInput {
+  content: String
+  language: String
+  parentId: ID
+  remoteObject: [String!]
+  tags: [String!]
+  typeId: ID
+}
+
+type BlogPostType {
+  description: String
+  id: ID!
+  name: String!
+}
+
+type BlogQueries {
+  blogPostTypes: [BlogPostType!]!
+  listByRemoteObjects(ids: [String!]!): [BlogPost]
+  locateBlogPost(id: ID!): BlogPost
+}
+
+type CreateBlogPostResponse {
+  message: String!
+  post: BlogPost!
+}
+
+type DeleteBlogPostResponse {
+  id: ID!
+  message: String!
+}
+
+type RemoveRemoteObjectResponse {
+  message: String!
+  post: BlogPost!
+}
+
+type UpdateBlogPostResponse {
+  message: String!
+  post: BlogPost!
+}
+
+extend type Query {
+  blogQueries: BlogQueries!
+}
+
+extend type Mutation {
+  blogMutations: BlogMutations!
+}

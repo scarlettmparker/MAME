@@ -1,0 +1,22 @@
+mutation removeRemoteObject($postId: ID!, $target: String!) {
+  blogMutations {
+    removeRemoteObject(postId: $postId, target: $target) {
+      message
+      post {
+        id
+        title
+        content
+        tags
+        remoteObject
+        language
+        parentId
+        type {
+          id
+          name
+        }
+        createdAt
+        updatedAt
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+mutation updateBlogPost($id: ID!, $input: BlogPostInput!) {
+  blogMutations {
+    updateBlogPost(id: $id, input: $input) {
+      message
+      post {
+        id
+        title
+        content
+        tags
+        remoteObject
+        language
+        parentId
+        type {
+          id
+          name
+        }
+        createdAt
+        updatedAt
+      }
+    }
+  }
+}

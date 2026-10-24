@@ -1,0 +1,8 @@
+mutation deleteBlogPost($id: ID!) {
+  blogMutations {
+    deleteBlogPost(id: $id) {
+      message
+      id
+    }
+  }
+}

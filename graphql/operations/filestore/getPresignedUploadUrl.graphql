@@ -1,0 +1,8 @@
+mutation GetPresignedUploadUrl($input: PresignInput!) {
+  filestoreMutations {
+    getPresignedUploadUrl(input: $input) {
+      message
+      url
+    }
+  }
+}

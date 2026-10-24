@@ -1,0 +1,10 @@
+mutation createBlogPost($title: String!, $input: BlogPostInput!) {
+  blogMutations {
+    createBlogPost(title: $title, input: $input) {
+      message
+      post {
+        id
+      }
+    }
+  }
+}
