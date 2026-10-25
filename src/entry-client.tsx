@@ -6,7 +6,7 @@ import { Suspense } from "react";
 
 import Layout from "./components/layout";
 import { setI18n } from "@sun/i18n";
-import { initClientBootstrap } from "@sun/ssr";
+import { initClientBootstrap, preloadLazyComponents } from "@sun/ssr";
 import "./utils/configure-framework";
 import "@sun/components/style.css";
 
@@ -23,7 +23,7 @@ if (typeof window !== "undefined" && window.trustedTypes) {
 
 setI18n(i18n);
 
-initClientBootstrap({ i18n })
+initClientBootstrap({ i18n, preload: preloadLazyComponents })
   .then(() => {
     ReactDOM.hydrateRoot(
       document.getElementById("app") as HTMLElement,

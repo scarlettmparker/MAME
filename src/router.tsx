@@ -1,5 +1,6 @@
 import { RouteObject, useRoutes } from "react-router-dom";
-import { lazy, Suspense } from "react";
+import { Suspense } from "react";
+import { preloadableLazy as lazy } from "@sun/ssr";
 import MAMEPageSkeleton from "~/components/skeletons/mame-page-skeleton";
 import NotesPageSkeleton from "~/routes/notes/skeletons/notes-page-skeleton";
 import CreatePageSkeleton from "~/routes/notes/create/skeletons/create-page-skeleton";
