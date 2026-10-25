@@ -35,7 +35,8 @@ const EmulatorView = (props: EmulatorViewProps) => {
   }, [onNostalgistChange]);
 
   useEffect(() => {
-    if (!romKey || !containerRef.current) return;
+    const container = containerRef.current;
+    if (!romKey || !container) return;
 
     let cancelled = false;
 
@@ -68,7 +69,7 @@ const EmulatorView = (props: EmulatorViewProps) => {
         const nostalgistInstance = await NostalgistLoader.launch({
           core: "genesis_plus_gx",
           rom: file,
-          element: containerRef.current,
+          element: container,
           respondToGlobalEvents: false,
           shader: "mix_frames_smart",
           resolveShader: () => [

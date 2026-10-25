@@ -242,7 +242,10 @@ defineMutation({
  */
 defineMutation({
   path: "blog/create",
-  async handler(body: { title: string; input?: Record<string, unknown> }) {
+  async handler(
+    body: { title: string; input?: Record<string, unknown> },
+    context: MutationContext,
+  ) {
     if (typeof body.title !== "string") {
       throw new MutationError("title required");
     }
@@ -267,7 +270,10 @@ defineMutation({
  */
 defineMutation({
   path: "blog/update",
-  async handler(body: { id: string; input: Record<string, unknown> }) {
+  async handler(
+    body: { id: string; input: Record<string, unknown> },
+    context: MutationContext,
+  ) {
     if (typeof body.id !== "string") {
       throw new MutationError("id required");
     }
@@ -292,7 +298,10 @@ defineMutation({
  */
 defineMutation({
   path: "blog/add-remote-object",
-  async handler(body: { postId: string; target: string }) {
+  async handler(
+    body: { postId: string; target: string },
+    context: MutationContext,
+  ) {
     if (typeof body.postId !== "string" || typeof body.target !== "string") {
       throw new MutationError("Invalid input");
     }
@@ -317,7 +326,10 @@ defineMutation({
  */
 defineMutation({
   path: "blog/remove-remote-object",
-  async handler(body: { postId: string; target: string }) {
+  async handler(
+    body: { postId: string; target: string },
+    context: MutationContext,
+  ) {
     if (typeof body.postId !== "string" || typeof body.target !== "string") {
       throw new MutationError("Invalid input");
     }
@@ -342,7 +354,7 @@ defineMutation({
  */
 defineMutation({
   path: "blog/delete",
-  async handler(body: { id: string }) {
+  async handler(body: { id: string }, context: MutationContext) {
     if (typeof body.id !== "string") {
       throw new MutationError("id required");
     }

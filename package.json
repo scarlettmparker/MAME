@@ -10,6 +10,7 @@
     "build:server": "bunx vite build --ssr src/entry-server.tsx --outDir dist/server",
     "graphql:generate": "bunx graphql-codegen --config codegen.ts",
     "lint": "bunx oxlint",
+    "typecheck": "bunx tsc --noEmit",
     "preview": "NODE_ENV=production bun --preload ./css-plugin.ts server.js",
     "test": "bunx vitest run --passWithNoTests",
     "test:watch": "bunx vitest",
